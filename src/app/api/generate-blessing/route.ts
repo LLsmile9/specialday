@@ -1,8 +1,36 @@
 import ZAI from "z-ai-web-dev-sdk";
 import { NextResponse } from "next/server";
+import { writeFileSync, mkdirSync, existsSync } from "fs";
+import { join } from "path";
+
+// Ensure z-ai config exists for Vercel deployment
+function ensureConfig() {
+  const configDir = process.cwd();
+  const configPath = join(configDir, ".z-ai-config");
+
+  if (existsSync(configPath)) return;
+
+  // Build config from environment variables (set in Vercel dashboard)
+  const config = {
+    baseUrl: process.env.ZAI_BASE_URL || "https://internal-api.z.ai/v1",
+    apiKey: process.env.ZAI_API_KEY || "Z.ai",
+    chatId: process.env.ZAI_CHAT_ID || "",
+    userId: process.env.ZAI_USER_ID || "",
+    token: process.env.ZAI_TOKEN || "",
+  };
+
+  try {
+    writeFileSync(configPath, JSON.stringify(config), "utf-8");
+  } catch {
+    // If we can't write, the SDK will try other paths
+  }
+}
 
 export async function POST(request: Request) {
   try {
+    // Ensure config file exists before creating SDK instance
+    ensureConfig();
+
     const body = await request.json();
     const { name, season, person, environment, food, moodColor, timeOfDay, wish, music } = body;
 
