@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   reactStrictMode: false,
+  images: {
+    unoptimized: true,
+  },
 };
 
 export default nextConfig;

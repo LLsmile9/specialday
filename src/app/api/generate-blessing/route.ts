@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 
+export const runtime = 'edge';
+
 const MOONSHOT_BASE_URL = "https://api.moonshot.cn/v1";
-const MOONSHOT_API_KEY = process.env.MOONSHOT_API_KEY || "";
 
 export async function POST(request: Request) {
+  const MOONSHOT_API_KEY = process.env.MOONSHOT_API_KEY || "";
   try {
     if (!MOONSHOT_API_KEY) {
       console.error("MOONSHOT_API_KEY is not set");

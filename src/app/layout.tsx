@@ -17,6 +17,7 @@ const lxgwWenkai = localFont({
   ],
   variable: "--font-lxgw-wenkai",
   display: "swap",
+  fallback: ["LXGW WenKai Screen", "LXGW WenKai", "serif"],
 });
 
 const longCang = localFont({
@@ -29,6 +30,7 @@ const longCang = localFont({
   ],
   variable: "--font-long-cang",
   display: "swap",
+  fallback: ["Long Cang", "LXGW WenKai Screen", "LXGW WenKai", "serif"],
 });
 
 export const metadata: Metadata = {
@@ -47,6 +49,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh" suppressHydrationWarning>
+      <head>
+        {/* CDN fonts as fallback for characters not in local subset */}
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css"
+        />
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/long-cang@2.0.0/font.css"
+        />
+      </head>
       <body
         className={`${lxgwWenkai.variable} ${longCang.variable} antialiased`}
       >
