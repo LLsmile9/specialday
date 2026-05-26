@@ -1,35 +1,17 @@
-import ZAI from "z-ai-web-dev-sdk";
 import { NextResponse } from "next/server";
-import { writeFileSync, mkdirSync, existsSync } from "fs";
-import { join } from "path";
 
-// Ensure z-ai config exists for Vercel deployment
-function ensureConfig() {
-  const configDir = process.cwd();
-  const configPath = join(configDir, ".z-ai-config");
-
-  if (existsSync(configPath)) return;
-
-  // Build config from environment variables (set in Vercel dashboard)
-  const config = {
-    baseUrl: process.env.ZAI_BASE_URL || "https://internal-api.z.ai/v1",
-    apiKey: process.env.ZAI_API_KEY || "Z.ai",
-    chatId: process.env.ZAI_CHAT_ID || "",
-    userId: process.env.ZAI_USER_ID || "",
-    token: process.env.ZAI_TOKEN || "",
-  };
-
-  try {
-    writeFileSync(configPath, JSON.stringify(config), "utf-8");
-  } catch {
-    // If we can't write, the SDK will try other paths
-  }
-}
+const MOONSHOT_BASE_URL = "https://api.moonshot.cn/v1";
+const MOONSHOT_API_KEY = process.env.MOONSHOT_API_KEY || "";
 
 export async function POST(request: Request) {
   try {
-    // Ensure config file exists before creating SDK instance
-    ensureConfig();
+    if (!MOONSHOT_API_KEY) {
+      console.error("MOONSHOT_API_KEY is not set");
+      return NextResponse.json(
+        { error: "API key not configured" },
+        { status: 500 }
+      );
+    }
 
     const body = await request.json();
     const { name, season, person, environment, food, moodColor, timeOfDay, wish, music } = body;
@@ -37,8 +19,6 @@ export async function POST(request: Request) {
     if (!name) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
-
-    const client = await ZAI.create();
 
     // Build context from all available answers
     const contextLines = [
@@ -105,24 +85,42 @@ ${contextLines}
 请只返回JSON，格式如下：
 {"poeticSentenceZh":"...","poeticSentenceEn":"...","birthdayBlessingZh":"...","birthdayBlessingEn":"..."}`;
 
-    const response = await client.chat.completions.create({
-      model: "glm-4-flash",
-      messages: [
-        {
-          role: "system",
-          content:
-            "你是一位温暖的、充满想象力的朋友，擅长化身为不同人物来传递生日祝福。当用户提到一个人物Y时，你会立刻判断Y是谁，找到Y最知名的角色、作品、经典台词和名场面，然后用Y的口吻和风格来说话，就像Y本人穿越过来送祝福一样。如果是普通人，就用温柔诗意的语言。你只返回JSON格式的数据。",
-        },
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-      temperature: 0.9,
-      max_tokens: 800,
+    // Call Moonshot API directly
+    const response = await fetch(`${MOONSHOT_BASE_URL}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${MOONSHOT_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "moonshot-v1-8k",
+        messages: [
+          {
+            role: "system",
+            content:
+              "你是一位温暖的、充满想象力的朋友，擅长化身为不同人物来传递生日祝福。当用户提到一个人物Y时，你会立刻判断Y是谁，找到Y最知名的角色、作品、经典台词和名场面，然后用Y的口吻和风格来说话，就像Y本人穿越过来送祝福一样。如果是普通人，就用温柔诗意的语言。你只返回JSON格式的数据。",
+          },
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+        temperature: 0.9,
+        max_tokens: 800,
+      }),
     });
 
-    const content = response.choices?.[0]?.message?.content?.trim() || "";
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error("Moonshot API error:", response.status, errorBody);
+      return NextResponse.json(
+        { error: "AI service error" },
+        { status: 500 }
+      );
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content?.trim() || "";
 
     let parsed;
     try {
@@ -136,6 +134,7 @@ ${contextLines}
       if (jsonMatch) {
         parsed = JSON.parse(jsonMatch[0]);
       } else {
+        console.error("Failed to parse AI response:", content);
         return NextResponse.json(
           { error: "Failed to parse AI response" },
           { status: 500 }
