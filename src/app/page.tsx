@@ -596,7 +596,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.05 }}
-              className="text-[#5a7a72]/20 text-[11px] tracking-[0.25em] mb-8"
+              className="text-[#5a7a72]/35 text-[11px] tracking-[0.25em] mb-8"
               style={{ fontFamily: FONT }}
             >
               {step} / {TOTAL_STEPS}
@@ -609,7 +609,7 @@ export default function Home() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.1, duration: 0.6 }}
-                className="text-sm font-extralight text-[#5a7a72]/30 leading-loose tracking-wider mb-4 max-w-sm"
+                className="text-sm font-light text-[#5a7a72]/65 leading-loose tracking-wider mb-4 max-w-sm"
                 style={{ fontFamily: FONT_ARTISTIC }}
               >
                 {narrative}
@@ -631,7 +631,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="text-lg sm:text-xl font-extralight text-[#3d5c53]/80 leading-relaxed mb-8 max-w-sm"
+              className="text-lg sm:text-xl font-light text-[#3d5c53] leading-relaxed mb-8 max-w-sm"
               style={{ fontFamily: FONT }}
             >
               {currentStep.key === "name"
@@ -654,7 +654,7 @@ export default function Home() {
                     className={`px-3 py-2.5 rounded-full text-[13px] font-extralight transition-all min-w-0 overflow-hidden ${
                       selectedOption === opt.value
                         ? "bg-[#5a7a72]/18 text-[#3d5c53] border border-[#5a7a72]/20"
-                        : "bg-[#5a7a72]/6 text-[#5a7a72]/55 border border-[#5a7a72]/8 hover:bg-[#5a7a72]/12 hover:text-[#3d5c53]/75"
+                        : "bg-[#5a7a72]/8 text-[#5a7a72]/80 border border-[#5a7a72]/10 hover:bg-[#5a7a72]/15 hover:text-[#3d5c53]/85"
                     }`}
                     style={{ fontFamily: FONT }}
                   >
@@ -744,7 +744,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-lg sm:text-xl font-extralight text-[#3d5c53]/60 leading-relaxed"
+              className="text-lg sm:text-xl font-light text-[#3d5c53]/75 leading-relaxed"
               style={{ fontFamily: FONT }}
             >
               {t("loadingPrefix")}
